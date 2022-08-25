@@ -3,13 +3,15 @@ if vim.g.loaded_join then
 end
 
 local join = require("join")
-local fn = vim.fn
 
 vim.keymap.set({ "n", "x" }, "<Plug>(join-input)", function()
-    join.map(fn.mode() == "n", true)
+    join.map("input")
 end)
 vim.keymap.set({ "n", "x" }, "<Plug>(join-getchar)", function()
-    join.map(fn.mode() == "n", false)
+    join.map("getchar")
+end)
+vim.keymap.set({ "n", "x" }, "<Plug>(join-noinput)", function()
+    join.map("noinput")
 end)
 
 join.setup()

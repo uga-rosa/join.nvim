@@ -32,12 +32,16 @@ function M.create_command()
     })
 end
 
-local function _get_user_input(use_input)
-    if use_input then
+local function _get_user_input(mode)
+    if mode == "input" then
         return fn.input
-    else
-        return function(_, _, _)
+    elseif mode == "getchar" then
+        return function()
             return fn.getcharstr()
+        end
+    else
+        return function(_, default)
+            return default
         end
     end
 end
@@ -46,8 +50,9 @@ local function feedkey(key)
     api.nvim_feedkeys(api.nvim_replace_termcodes(key, true, false, true), "nx", false)
 end
 
-function M.map(is_normal, use_input)
-    local get_user_input = _get_user_input(use_input)
+function M.map(mode)
+    local is_normal = fn.mode() == "n"
+    local get_user_input = _get_user_input(mode)
 
     local default_sep = config.get("sep") or ""
     local sep = get_user_input("Input separator: ", default_sep)

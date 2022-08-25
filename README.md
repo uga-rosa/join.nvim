@@ -38,3 +38,6 @@ require("join").setup({
     - Defined in `n` and `x` mode.
     - Use `getcharstr()` to enter `{sep}` and `{count}`.
     - In visual mode (xmap), the input of `{count}` is omitted.
+- `<Plug>(join-noinput)`
+    - Defined in `n` and `x` mode.
+    - Don't input, use default `{sep}` and `{count}`.
