@@ -5,6 +5,7 @@ local config = require("join.config")
 
 local M = {}
 
+---@param opt? table
 function M.setup(opt)
     opt = opt or {}
     config.setup(opt)
@@ -32,6 +33,8 @@ function M.create_command()
     })
 end
 
+---@param mode string
+---@return fun(prompt: string, default_value: string | number)
 local function _get_user_input(mode)
     if mode == "input" then
         return fn.input
@@ -50,6 +53,8 @@ local function feedkey(key)
     api.nvim_feedkeys(api.nvim_replace_termcodes(key, true, false, true), "nx", false)
 end
 
+---For <Plug> mapping.
+---@param mode string
 function M.map(mode)
     local is_normal = fn.mode() == "n"
     local get_user_input = _get_user_input(mode)
@@ -88,6 +93,9 @@ function M.map(mode)
     M._join(line1, line2, sep)
 end
 
+---@param line1 integer
+---@param line2 integer
+---@param sep string
 function M._join(line1, line2, sep)
     -- 0-based index, and `end_` is exclusive.
     local lines = api.nvim_buf_get_lines(0, line1 - 1, line2, false)

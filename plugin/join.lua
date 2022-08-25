@@ -4,6 +4,8 @@ end
 
 local join = require("join")
 
+join.create_command()
+
 vim.keymap.set({ "n", "x" }, "<Plug>(join-input)", function()
     join.map("input")
 end)
@@ -13,5 +15,3 @@ end)
 vim.keymap.set({ "n", "x" }, "<Plug>(join-noinput)", function()
     join.map("noinput")
 end)
-
-join.setup()
