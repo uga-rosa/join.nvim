@@ -34,7 +34,7 @@ end
 
 function M.join(line1, line2, sep)
     -- 0-based index, and `end_` is exclusive.
-    local lines = api.nvim_buf_get_lines(0, line1 - 1, line2, true)
+    local lines = api.nvim_buf_get_lines(0, line1 - 1, line2, false)
 
     local cms = vim.opt.commentstring:get()
     cms = cms:gsub(".", "%%%1")
@@ -53,7 +53,7 @@ function M.join(line1, line2, sep)
     end
 
     local new_line = table.concat(lines, sep)
-    api.nvim_buf_set_lines(0, line1 - 1, line2, true, { new_line })
+    api.nvim_buf_set_lines(0, line1 - 1, line2, false, { new_line })
 end
 
 return M
