@@ -1,6 +1,8 @@
 # join.nvim
 
-`join()` (or `J` in normal mode) with selectable delimiters.
+`:join` (or `J` in normal mode) with selectable delimiters.
+
+![join nvim](https://user-images.githubusercontent.com/82267684/186750604-eeb41908-e046-4601-b8c9-f5f1d0922f01.gif)
 
 # Setup
 
@@ -17,9 +19,9 @@ require("join").setup({
 # Command
 
 - `:[range]Join[!] [{sep} [{count}]]`
-    - Combines the selected range with {sep}.
-    - If {sep} and/or {count} are omitted, the ones defined in setup will be used (Defaults are ", " and 0).
-    - The count is the offset of the last row. Negative numbers mean upward.
+    - Combines the selected range with `{sep}`.
+    - If you want to use spaces in a delimiter, please escape them with `\`.
+    - The `{count}` is the offset of the last row. Negative numbers mean upward.
     - For example, if `:Join , -2`, then the current row and the top two rows, a total of three rows, are joined by `,`.
-    - If you want to use special characters as separator, please escape them with `\`.
-    - This command does not insert or delete any spaces with [!]. (Same as `:join!`)
+    - With `[!]`, this command does not insert or delete any spaces (Same as `:join!`).
+    - If `{sep}` and/or `{count}` are omitted, the ones defined in setup will be used (Defaults are `, ` and `0`).
