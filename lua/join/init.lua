@@ -1,4 +1,5 @@
 local api = vim.api
+local fn = vim.fn
 
 local config = require("join.config")
 
@@ -14,8 +15,7 @@ function M.create_command()
     api.nvim_create_user_command("Join", function(opt)
         local bang = opt.bang
         if bang then
-            vim.cmd("normal! gv")
-            vim.cmd("normal! gJ")
+            vim.cmd("normal! gvgJ")
         else
             local sep = opt.fargs[1] or config.get("sep")
             local count = opt.fargs[2] or 0
@@ -23,7 +23,7 @@ function M.create_command()
             if line1 > line2 then
                 line1, line2 = line2, line1
             end
-            M.join(line1, line2, sep)
+            M._join(line1, line2, sep)
         end
     end, {
         nargs = "*",
@@ -32,7 +32,58 @@ function M.create_command()
     })
 end
 
-function M.join(line1, line2, sep)
+local function _get_user_input(use_input)
+    if use_input then
+        return fn.input
+    else
+        return function(_, _, _)
+            return fn.getcharstr()
+        end
+    end
+end
+
+local function feedkey(key)
+    api.nvim_feedkeys(api.nvim_replace_termcodes(key, true, false, true), "nx", false)
+end
+
+function M.map(is_normal, use_input)
+    local get_user_input = _get_user_input(use_input)
+
+    local default_sep = config.get("sep") or ""
+    local sep = get_user_input("Input separator: ", default_sep)
+
+    local line1, line2
+    if is_normal then
+        -- Called from normal mode.
+        local default_count = config.get("count")
+        if default_count == 0 then
+            default_count = ""
+        end
+        local count_input = get_user_input("Input count: ", default_count)
+        local count = tonumber(count_input) or 0
+        if count == 0 then
+            return
+        elseif count > 0 then
+            line1 = fn.line(".")
+            line2 = line1 + count
+        else
+            line2 = fn.line(".")
+            line1 = line1 + count
+        end
+    else
+        -- Called from visual mode.
+        feedkey("<Esc>")
+        line1 = fn.line("'<")
+        line2 = fn.line("'>")
+        if line1 == line2 then
+            return
+        end
+    end
+
+    M._join(line1, line2, sep)
+end
+
+function M._join(line1, line2, sep)
     -- 0-based index, and `end_` is exclusive.
     local lines = api.nvim_buf_get_lines(0, line1 - 1, line2, false)
 

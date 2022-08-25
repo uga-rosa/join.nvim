@@ -2,6 +2,8 @@
 
 `:join` (or `J` in normal mode) with selectable delimiters.
 
+You can use the feature of this plugin via commands or mappings.
+
 ![join nvim](https://user-images.githubusercontent.com/82267684/186750604-eeb41908-e046-4601-b8c9-f5f1d0922f01.gif)
 
 # Setup
@@ -25,3 +27,14 @@ require("join").setup({
     - For example, if `:Join , -2`, then the current row and the top two rows, a total of three rows, are joined by `,`.
     - With `[!]`, this command does not insert or delete any spaces (Same as `:join!`).
     - If `{sep}` and/or `{count}` are omitted, the ones defined in setup will be used (Defaults are `, ` and `0`).
+
+# Mapping
+
+- `<Plug>(join-input)`
+    - Defined in `n` and `x` mode.
+    - Use `input()` to enter `{sep}` and `{count}`.
+    - In visual mode (xmap), the input of `{count}` is omitted.
+- `<Plug>(join-getchar)`
+    - Defined in `n` and `x` mode.
+    - Use `getcharstr()` to enter `{sep}` and `{count}`.
+    - In visual mode (xmap), the input of `{count}` is omitted.
