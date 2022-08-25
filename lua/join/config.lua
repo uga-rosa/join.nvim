@@ -1,7 +1,7 @@
 local M = {}
 
 M.config = {
-    sep = ", ",
+    sep = " ",
     count = 0,
 }
 
