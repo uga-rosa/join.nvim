@@ -2,7 +2,7 @@
 
 `:join` (or `J` in normal mode) with selectable delimiters.
 
-You can use the feature of this plugin via commands or mappings.
+You can use the feature of this plugin via commands or key mappings.
 
 ![join nvim](https://user-images.githubusercontent.com/82267684/186750604-eeb41908-e046-4601-b8c9-f5f1d0922f01.gif)
 
@@ -13,7 +13,7 @@ Below is an example of redefining the default settings.
 
 ```lua
 require("join").setup({
-    sep = ", ",
+    sep = " ",
     count = 0,
 })
 ```
@@ -21,7 +21,7 @@ require("join").setup({
 # Command
 
 - `:[range]Join[!] [{sep} [{count}]]`
-    - Combines the selected range with `{sep}`.
+    - Join the selected lines with `{sep}`.
     - If you want to use spaces in a delimiter, please escape them with `\`.
     - The `{count}` is the offset of the last row. Negative numbers mean upward.
     - For example, if `:Join , -2`, then the current row and the top two rows, a total of three rows, are joined by `,`.
