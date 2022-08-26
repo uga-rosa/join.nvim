@@ -90,12 +90,13 @@ function M.map(mode)
     local line1, line2
     if is_normal then
         -- Called from normal mode.
-        ---@type string | integer
-        local default_count = config.count
-        if default_count == 0 then
-            default_count = ""
+        if mode == "select" then
+            get_user_input = user_input.input
         end
-        local count_input = user_input.input("count", default_count)
+
+        local default_count = config.count or 1
+
+        local count_input = get_user_input("count", default_count)
         local count = tonumber(count_input) or 1
         if count == 0 then
             return
