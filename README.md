@@ -18,7 +18,7 @@ require("join").setup({
         " ",
         ", ",
     },
-    count = 0,
+    count = 1,
 })
 ```
 
