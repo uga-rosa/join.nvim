@@ -14,6 +14,10 @@ Below is an example of redefining the default settings.
 ```lua
 require("join").setup({
     sep = " ",
+    sep_list = {
+        " ",
+        ", ",
+    },
     count = 0,
 })
 ```
@@ -28,12 +32,17 @@ require("join").setup({
     - With `[!]`, this command does not insert or delete any spaces (Same as `:join!`).
     - If `{sep}` and/or `{count}` are omitted, the ones defined in setup will be used (Defaults are `, ` and `0`).
 
-# Mapping
+# Key Mapping
 
 - `<Plug>(join-input)`
     - Defined in `n` and `x` mode.
-    - Use `input()` to enter `{sep}` and `{count}`.
+    - Use `vim.ui.input()` to set `{sep}` and `{count}`.
     - In visual mode (xmap), the input of `{count}` is omitted.
 - `<Plug>(join-noinput)`
     - Defined in `n` and `x` mode.
     - Don't input, use default `{sep}` and `{count}`.
+- `<Plug>(join-select)`
+    - Defined in `n` and `x` mode.
+    - Use `vim.ui.select()` to set `{sep}` from a collection `{sep_list}`.
+    - Use, however, `vim.ui.input()` to set `{count}`.
+    - In visual mode (xmap), the input of `{count}` is omitted.

@@ -2,23 +2,11 @@ local M = {}
 
 M.config = {
     sep = " ",
-    count = 0,
-    ---@type table<string, fun(prompt: string, default_value: string | number)>
-    get_user_input = {
-        input = function(prompt, default_value)
-            local result
-            vim.ui.input({
-                prompt = prompt,
-                default = default_value,
-            }, function(input)
-                result = input
-            end)
-            return result
-        end,
-        noinput = function(_, default)
-            return default
-        end,
+    sep_list = {
+        " ",
+        ", ",
     },
+    count = 0,
 }
 
 ---@param opt table

@@ -33,6 +33,47 @@ function M.create_command()
     })
 end
 
+---@type table<string, fun(mode: string, default_value: string | number)>
+local user_input
+user_input = {
+    input = function(mode, default_value)
+        local prompt = ("Input %s: "):format(mode)
+        local result
+        vim.cmd("redraw")
+        vim.ui.input({
+            prompt = prompt,
+            default = default_value,
+        }, function(input)
+            result = input
+        end)
+        return result
+    end,
+    noinput = function(_, default_value, _)
+        return default_value
+    end,
+    select = function(mode, default_value)
+        local prompt = ("Choice %ss: "):format(mode)
+        local result
+        local sep_list = config.sep_list
+        table.insert(sep_list, "Input")
+        vim.cmd("redraw")
+        vim.ui.select(sep_list, {
+            prompt = prompt,
+            format_item = function(item)
+                return '"' .. item .. '"'
+            end,
+        }, function(choice)
+            result = choice
+        end)
+        table.remove(sep_list)
+
+        if result == "Input" then
+            result = user_input.input(mode, default_value)
+        end
+        return result
+    end,
+}
+
 local function feedkey(key)
     api.nvim_feedkeys(api.nvim_replace_termcodes(key, true, false, true), "nx", false)
 end
@@ -41,13 +82,10 @@ end
 ---@param mode string
 function M.map(mode)
     local is_normal = fn.mode() == "n"
-    local get_user_input = config.get_user_input[mode]
-    if not get_user_input then
-        return
-    end
+    local get_user_input = user_input[mode]
 
-    local default_sep = config.sep or ""
-    local sep = get_user_input("Input separator: ", default_sep)
+    local default_sep = config.sep or " "
+    local sep = get_user_input("separator", default_sep)
 
     local line1, line2
     if is_normal then
@@ -57,8 +95,8 @@ function M.map(mode)
         if default_count == 0 then
             default_count = ""
         end
-        local count_input = get_user_input("Input count: ", default_count)
-        local count = tonumber(count_input) or 0
+        local count_input = user_input.input("count", default_count)
+        local count = tonumber(count_input) or 1
         if count == 0 then
             return
         elseif count > 0 then

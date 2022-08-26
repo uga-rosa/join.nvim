@@ -55,6 +55,7 @@ Commands                                                    *join-nvim-commands*
 Key Mappings                                            *join-nvim-key-mappings*
 
 
+                                                            *<Plug>(join-input)*
 <Plug>(join-input)
 	Defined in 'n' and 'x' mode.
 	Use |input()| to enter {sep} and {count}.
@@ -65,6 +66,14 @@ Key Mappings                                            *join-nvim-key-mappings*
 <Plug>(join-noinput)
 	Defined in 'n' and 'x' mode.
 	Don't input, use default {sep} and {count}
+
+
+                                                           *<Plug>(join-select)*
+<Plug>(join-select)
+	Defined in 'n' and 'x' mode.
+	Use |vim.ui.select()| to set {sep} from a collection {sep_list}.
+	Use, however, |vim.ui.input()| to set {count}.
+	In visual mode (xmap), the input of {count} is omitted.
 
 
 
