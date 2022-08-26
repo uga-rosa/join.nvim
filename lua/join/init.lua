@@ -1,7 +1,7 @@
 local api = vim.api
 local fn = vim.fn
 
-local config = require("join.config")
+local config = require("join.config").config
 
 local M = {}
 
@@ -18,7 +18,7 @@ function M.create_command()
         if bang then
             vim.cmd("normal! gvgJ")
         else
-            local sep = opt.fargs[1] or config.get("sep")
+            local sep = opt.fargs[1] or config.sep
             local count = opt.fargs[2] or 0
             local line1, line2 = opt.line1, opt.line2 + count
             if line1 > line2 then
@@ -33,22 +33,6 @@ function M.create_command()
     })
 end
 
----@param mode string
----@return fun(prompt: string, default_value: string | number)
-local function _get_user_input(mode)
-    if mode == "input" then
-        return fn.input
-    elseif mode == "getchar" then
-        return function()
-            return fn.getcharstr()
-        end
-    else
-        return function(_, default)
-            return default
-        end
-    end
-end
-
 local function feedkey(key)
     api.nvim_feedkeys(api.nvim_replace_termcodes(key, true, false, true), "nx", false)
 end
@@ -57,15 +41,19 @@ end
 ---@param mode string
 function M.map(mode)
     local is_normal = fn.mode() == "n"
-    local get_user_input = _get_user_input(mode)
+    local get_user_input = config.get_user_input[mode]
+    if not get_user_input then
+        return
+    end
 
-    local default_sep = config.get("sep") or ""
+    local default_sep = config.sep or ""
     local sep = get_user_input("Input separator: ", default_sep)
 
     local line1, line2
     if is_normal then
         -- Called from normal mode.
-        local default_count = config.get("count")
+        ---@type string | integer
+        local default_count = config.count
         if default_count == 0 then
             default_count = ""
         end
