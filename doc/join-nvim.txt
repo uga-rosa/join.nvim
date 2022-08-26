@@ -61,13 +61,6 @@ Key Mappings                                            *join-nvim-key-mappings*
 	In visual mode (xmap), the input of {count} is omitted.
 
 
-                                                          *<Plug>(join-getchar)*
-<Plug>(join-getchar)
-	Defined in 'n' and 'x' mode.
-	Use |getcharstr()| to enter {sep} and {count}.
-	In visual mode (xmap), the input of {count} is omitted.
-
-
                                                           *<Plug>(join-noinput)*
 <Plug>(join-noinput)
 	Defined in 'n' and 'x' mode.

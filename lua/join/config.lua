@@ -1,5 +1,3 @@
-local fn = vim.fn
-
 local M = {}
 
 M.config = {
@@ -16,9 +14,6 @@ M.config = {
                 result = input
             end)
             return result
-        end,
-        getchar = function()
-            return fn.getcharstr()
         end,
         noinput = function(_, default)
             return default
