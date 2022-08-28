@@ -24,6 +24,10 @@ Just install and use. Below is an example of redefining the default settings.
 >
 	require("join").setup({
 	    sep = " ",
+	    sep_list = {
+		" ",
+		", ",
+	    },
 	    count = 0,
 	})
 <
