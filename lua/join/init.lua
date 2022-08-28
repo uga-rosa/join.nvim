@@ -1,7 +1,7 @@
 local api = vim.api
 local fn = vim.fn
 
-local config = require("join.config").config
+local config = require("join.config")
 
 local M = {}
 
@@ -14,28 +14,35 @@ end
 
 function M.create_command()
     api.nvim_create_user_command("Join", function(opt)
-        local bang = opt.bang
-        if bang then
-            vim.cmd("normal! gvgJ")
+        if opt.bang then
+            vim.cmd(("%s,%sjoin!"):format(opt.line1, opt.line2))
         else
-            local sep = opt.fargs[1] or config.sep
-            local count = opt.fargs[2] or 0
-            local line1, line2 = opt.line1, opt.line2 + count
-            if line1 > line2 then
-                line1, line2 = line2, line1
+            local line1, line2 = opt.line1, opt.line2
+            ---@type string
+            local sep = opt.fargs[1] or config.get("sep")
+            if opt.count == 0 then
+                -- Call from normal mode
+                local count = tonumber(opt.fargs[2]) or 0
+                if count > 0 then
+                    line2 = line2 + count
+                else
+                    line1 = line1 + count
+                end
             end
             M._join(line1, line2, sep)
         end
     end, {
         nargs = "*",
-        range = true,
+        range = 0,
         bang = true,
     })
 end
 
----@type table<string, fun(mode: string, default_value: string | number)>
 local user_input
 user_input = {
+    ---@param mode string
+    ---@param default_value string | number
+    ---@return string
     input = function(mode, default_value)
         local prompt = ("Input %s: "):format(mode)
         local result
@@ -48,14 +55,21 @@ user_input = {
         end)
         return result
     end,
-    noinput = function(_, default_value, _)
-        return default_value
+    ---@param default_value string | number
+    ---@return string
+    noinput = function(_, default_value)
+        return default_value .. ""
     end,
+    ---@param mode string
+    ---@param default_value string | number
+    ---@return string
     select = function(mode, default_value)
         local prompt = ("Choice %ss: "):format(mode)
+        local INPUT = "Input"
         local result
-        local sep_list = config.sep_list
-        table.insert(sep_list, "Input")
+        ---@type string[]
+        local sep_list = config.get("sep_list")
+        table.insert(sep_list, INPUT)
         vim.cmd("redraw")
         vim.ui.select(sep_list, {
             prompt = prompt,
@@ -67,7 +81,7 @@ user_input = {
         end)
         table.remove(sep_list)
 
-        if result == "Input" then
+        if result == INPUT then
             result = user_input.input(mode, default_value)
         end
         return result
@@ -82,29 +96,28 @@ end
 ---@param mode string
 function M.map(mode)
     local is_normal = fn.mode() == "n"
-    local get_user_input = user_input[mode]
+    local get_user_input = user_input[mode] or user_input.input
 
-    local default_sep = config.sep or " "
-    local sep = get_user_input("separator", default_sep)
+    ---@type string
+    local default_sep = config.get("sep")
+    local sep = get_user_input("separator", default_sep) or ""
 
     local line1, line2
     if is_normal then
         -- Called from normal mode.
+        line1 = fn.line(".")
+        line2 = line1
+
+        ---@type integer
+        local default_count = config.get("count")
         if mode == "select" then
             get_user_input = user_input.input
         end
+        local count = tonumber(get_user_input("count", default_count)) or 1
 
-        local default_count = config.count or 1
-
-        local count_input = get_user_input("count", default_count)
-        local count = tonumber(count_input) or 1
-        if count == 0 then
-            return
-        elseif count > 0 then
-            line1 = fn.line(".")
-            line2 = line1 + count
+        if count > 0 then
+            line2 = line2 + count
         else
-            line2 = fn.line(".")
             line1 = line1 + count
         end
     else
@@ -112,39 +125,47 @@ function M.map(mode)
         feedkey("<Esc>")
         line1 = fn.line("'<")
         line2 = fn.line("'>")
-        if line1 == line2 then
-            return
-        end
     end
 
     M._join(line1, line2, sep)
+end
+
+---@param line string
+---@return string
+local function remove_suffix_whitespaces(line)
+    return line:match("^(.*%S)") or ""
+end
+
+---@param line string
+---@return string
+local function remove_prefix_whitespaces(line)
+    return line:match("^%s*(.*)$") or ""
+end
+
+---@param lines string[]
+---@return string[]
+local function format_for_join(lines, sep)
+    lines[1] = remove_suffix_whitespaces(lines[1]) .. sep
+    for i = 2, #lines - 1 do
+        lines[i] = vim.trim(lines[i]) .. sep
+    end
+    lines[#lines] = remove_prefix_whitespaces(lines[#lines])
+    return lines
 end
 
 ---@param line1 integer
 ---@param line2 integer
 ---@param sep string
 function M._join(line1, line2, sep)
-    -- 0-based index, and `end_` is exclusive.
-    local lines = api.nvim_buf_get_lines(0, line1 - 1, line2, false)
-
-    local cms = vim.opt.commentstring:get()
-    cms = cms:gsub(".", "%%%1")
-    cms = cms:gsub("%%%%%%s", "(.*)")
-    cms = "^" .. cms .. "$"
-
-    local in_comment = lines[1]:find(cms) and true or false
-    for i = 2, #lines do
-        local line = lines[i]
-        line = vim.trim(line)
-        if in_comment and line:find(cms) then
-            line = line:match(cms)
-            line = vim.trim(line)
-        end
-        lines[i] = line
+    if line1 == line2 then
+        return
     end
 
-    local new_line = table.concat(lines, sep)
-    api.nvim_buf_set_lines(0, line1 - 1, line2, false, { new_line })
+    -- 0-based index, and `end_` is exclusive.
+    local lines = api.nvim_buf_get_lines(0, line1 - 1, line2, false)
+    lines = format_for_join(lines, sep)
+    api.nvim_buf_set_lines(0, line1 - 1, line2, false, lines)
+    vim.cmd(("%s,%sjoin!"):format(line1, line2))
 end
 
 return M
